@@ -39,38 +39,39 @@ kubectl -n kube-system get secret pxkeys -o json | jq -r '.data."shared-secret"'
   1. Shared key needs to be added to Portworx
   1. The Token issuer value needs to be added. The issuer is a string value which must identify the token generator. The token generator must set this value in the token itself under the `iss` claim. In this example, the issuer is set to `portworx.com`
 
-Example diff
+Example:
 
-```diff
-170c170
-<              "-x", "kubernetes"]
----
->              "-x", "kubernetes", "-jwt_issuer", "portworx.com"]
-178c178,192
-<             
----
->             - name: "PORTWORX_AUTH_JWT_SHAREDSECRET"
->               valueFrom:
->                 secretKeyRef:
->                   name: pxkeys
->                   key: shared-secret
->             - name: "PORTWORX_AUTH_SYSTEM_KEY"
->               valueFrom:
->                 secretKeyRef:
->                   name: pxkeys
->                   key: system-secret
->             - name: "PORTWORX_AUTH_STORK_KEY"
->               valueFrom:
->                 secretKeyRef:
->                   name: pxkeys
->                   key: stork-secret
-641a656,660
->         - name: "PX_SHARED_SECRET"
->           valueFrom:
->             secretKeyRef:
->               name: pxkeys
->               key: stork-secret
 ```
+...
+  name: stork
+  env:
+    - name: "PX_SHARED_SECRET"
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: stork-secret
+
+...
+  name: portworx
+  args:
+  [..."--jwt-issuer", "portworx.com", ...]
+  env:
+    - name: "PORTWORX_AUTH_JWT_SHAREDSECRET"
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: shared-secret
+    - name: "PORTWORX_AUTH_SYSTEM_KEY"
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: system-key
+    - name: "PORTWORX_AUTH_STORK_KEY"
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: stork-secret
+...```
 
 ## Generate token
 First create a user configuration yaml and save it to a file. In this example, we will save the following to a file called `user.yaml`:
