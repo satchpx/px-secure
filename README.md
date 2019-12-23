@@ -71,8 +71,7 @@ Example:
         secretKeyRef:
           name: mysecret
           key: stork-secret
-...```
-
+```
 ## Generate token
 First create a user configuration yaml and save it to a file. In this example, we will save the following to a file called `user.yaml`:
 
